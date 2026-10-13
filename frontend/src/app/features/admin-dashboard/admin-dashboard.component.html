@@ -1,0 +1,797 @@
+<div class="dashboard-layout">
+  <!-- Toast notification -->
+  <div class="toast-popup animate-fade-in" *ngIf="toastMessage()">
+    {{ toastMessage() }}
+  </div>
+
+  <!-- Sidebar Navigation -->
+  <aside class="dashboard-sidebar no-print">
+    <div class="sidebar-brand">
+      <div class="brand-badge-icon">⚡</div>
+      <div class="brand-text">
+        <h2 class="brand-title">NFC Admin</h2>
+        <span class="brand-subtitle">{{ restaurant()?.name || 'Restoran Yönetimi' }}</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button
+        class="nav-item"
+        [class.active]="activeTab() === 'overview'"
+        (click)="activeTab.set('overview')"
+      >
+        <span class="nav-icon">📊</span>
+        <span class="nav-text">Genel Bakış & İstatistik</span>
+      </button>
+
+      <button
+        class="nav-item"
+        [class.active]="activeTab() === 'menu'"
+        (click)="activeTab.set('menu')"
+      >
+        <span class="nav-icon">🍽️</span>
+        <span class="nav-text">Menü & Kategori Yönetimi</span>
+      </button>
+
+      <button
+        class="nav-item"
+        [class.active]="activeTab() === 'venue'"
+        (click)="activeTab.set('venue')"
+      >
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-text">Mekan & NFC / Wi-Fi Ayarları</span>
+      </button>
+
+      <button
+        class="nav-item"
+        [class.active]="activeTab() === 'nfc-stands'"
+        (click)="activeTab.set('nfc-stands')"
+      >
+        <span class="nav-icon">🏷️</span>
+        <span class="nav-text">NFC Masa Standı Üretici</span>
+      </button>
+
+      <button
+        class="nav-item"
+        [class.active]="activeTab() === 'preview'"
+        (click)="activeTab.set('preview')"
+      >
+        <span class="nav-icon">📱</span>
+        <span class="nav-text">Canlı Müşteri Önizleme</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a
+        [routerLink]="['/r', restaurant()?.slug]"
+        target="_blank"
+        class="btn-secondary live-page-btn"
+      >
+        <span>🔗 Müşteri Ekranını Aç</span>
+      </a>
+
+      <div class="user-profile-badge">
+        <div class="user-info">
+          <span class="user-name">{{ auth.currentUser()?.name }}</span>
+          <span class="user-email">{{ auth.currentUser()?.email }}</span>
+        </div>
+        <button class="logout-btn" (click)="logout()" title="Çıkış Yap">
+          🚪
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="dashboard-main">
+    <!-- Top Header -->
+    <header class="main-header no-print">
+      <div>
+        <h1 class="page-title">
+          <span *ngIf="activeTab() === 'overview'">Mekan Özeti & Canlı İstatistikler</span>
+          <span *ngIf="activeTab() === 'menu'">Dijital Menü Yönetimi</span>
+          <span *ngIf="activeTab() === 'venue'">Mekan Bilgileri, Wi-Fi & Google Ayarları</span>
+          <span *ngIf="activeTab() === 'nfc-stands'">NFC Masa Standları & QR Baskı Üretici</span>
+          <span *ngIf="activeTab() === 'preview'">Canlı Mobil Ekran Simülatörü</span>
+        </h1>
+        <p class="page-sub">
+          Mekan: <strong>{{ restaurant()?.name }}</strong> (Slug: /r/{{ restaurant()?.slug }})
+        </p>
+      </div>
+
+      <div class="header-right-actions">
+        <span class="status-indicator">
+          <span class="pulse-dot"></span> Canlı ve Aktif
+        </span>
+      </div>
+    </header>
+
+    <!-- TAB 1: OVERVIEW & ANALYTICS -->
+    <section class="tab-pane animate-fade-in" *ngIf="activeTab() === 'overview'">
+      <!-- Stats Metric Cards -->
+      <div class="stats-grid">
+        <div class="stat-card glass-card">
+          <div class="stat-icon-wrapper nfc-stat">
+            <span>⚡</span>
+          </div>
+          <div class="stat-data">
+            <span class="stat-label">Toplam NFC Okutma</span>
+            <h3 class="stat-value">{{ stats()?.totalNfcTaps || 0 }}</h3>
+            <span class="stat-trend positive">Masada dokunulan NFC etiketleri</span>
+          </div>
+        </div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-icon-wrapper wifi-stat">
+            <span>📶</span>
+          </div>
+          <div class="stat-data">
+            <span class="stat-label">Wi-Fi Bağlantı İsteği</span>
+            <h3 class="stat-value">{{ stats()?.totalWifiConnects || 0 }}</h3>
+            <span class="stat-trend positive">Otomatik QR ve şifre kopyalama</span>
+          </div>
+        </div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-icon-wrapper review-stat">
+            <span>⭐</span>
+          </div>
+          <div class="stat-data">
+            <span class="stat-label">Google Yorum Tıklaması</span>
+            <h3 class="stat-value">{{ stats()?.totalGoogleReviews || 0 }}</h3>
+            <span class="stat-trend positive">5 Yıldızlı değerlendirme yönlendirmesi</span>
+          </div>
+        </div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-icon-wrapper menu-stat">
+            <span>🍽️</span>
+          </div>
+          <div class="stat-data">
+            <span class="stat-label">Menü Görüntüleme</span>
+            <h3 class="stat-value">{{ stats()?.totalMenuViews || 0 }}</h3>
+            <span class="stat-trend positive">Detaylı yemek incelemeleri</span>
+          </div>
+        </div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-icon-wrapper waiter-stat">
+            <span>🛎️</span>
+          </div>
+          <div class="stat-data">
+            <span class="stat-label">Garson & Hesap Çağrısı</span>
+            <h3 class="stat-value">{{ stats()?.totalWaiterCalls || 0 }}</h3>
+            <span class="stat-trend positive">Masadan dijital servis çağrıları</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Shortcuts -->
+      <div class="quick-overview-row">
+        <!-- Recent Stream -->
+        <div class="overview-box glass-card flex-2">
+          <div class="box-header">
+            <h3 class="box-title">Canlı Etkileşim Akışı</h3>
+            <span class="badge badge-primary">Son 20 İşlem</span>
+          </div>
+
+          <div class="activity-stream" *ngIf="stats()?.recentEvents?.length; else emptyEvents">
+            <div *ngFor="let ev of stats()?.recentEvents" class="activity-row">
+              <div class="activity-type-icon">
+                <span *ngIf="ev.eventType === 'NFC_TAP'">📱</span>
+                <span *ngIf="ev.eventType === 'WIFI_CONNECT'">📶</span>
+                <span *ngIf="ev.eventType === 'GOOGLE_REVIEW'">⭐</span>
+                <span *ngIf="ev.eventType === 'MENU_VIEW'">🍽️</span>
+                <span *ngIf="ev.eventType === 'WAITER_CALL'">🛎️</span>
+              </div>
+              <div class="activity-desc">
+                <span class="activity-title">
+                  <strong *ngIf="ev.eventType === 'NFC_TAP'">NFC Masa Etiketi Okutuldu</strong>
+                  <strong *ngIf="ev.eventType === 'WIFI_CONNECT'">Wi-Fi QR Bağlantısı İstendi</strong>
+                  <strong *ngIf="ev.eventType === 'GOOGLE_REVIEW'">Google Yorum Sayfasına Geçildi</strong>
+                  <strong *ngIf="ev.eventType === 'MENU_VIEW'">Menü İncelendi</strong>
+                  <strong *ngIf="ev.eventType === 'WAITER_CALL'">Garson / Hesap Çağrıldı</strong>
+                </span>
+                <span class="activity-table" *ngIf="ev.tableNumber">Masa: {{ ev.tableNumber }}</span>
+              </div>
+              <div class="activity-time">
+                {{ ev.createdAt | date:'HH:mm - dd/MM' }}
+              </div>
+            </div>
+          </div>
+
+          <ng-template #emptyEvents>
+            <div class="empty-list-placeholder">
+              <p>Henüz kaydedilmiş etkileşim bulunmuyor.</p>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Venue Summary Card -->
+        <div class="overview-box glass-card flex-1">
+          <div class="box-header">
+            <h3 class="box-title">Mekan Durumu</h3>
+          </div>
+
+          <div class="venue-quick-info">
+            <div class="venue-avatar-wrap">
+              <img [src]="restaurant()?.logoUrl" alt="Logo" class="avatar-img" />
+              <div>
+                <h4 class="v-name">{{ restaurant()?.name }}</h4>
+                <p class="v-slug">https://.../r/{{ restaurant()?.slug }}</p>
+              </div>
+            </div>
+
+            <div class="quick-info-list">
+              <div class="q-row">
+                <span>Wi-Fi SSID:</span>
+                <strong>{{ restaurant()?.wifiSsid || 'Tanımlanmadı' }}</strong>
+              </div>
+              <div class="q-row">
+                <span>Kategoriler:</span>
+                <strong>{{ categories().length }} adet</strong>
+              </div>
+              <div class="q-row">
+                <span>Google Bağlantısı:</span>
+                <strong [style.color]="restaurant()?.googleReviewUrl ? '#34d399' : '#f87171'">
+                  {{ restaurant()?.googleReviewUrl ? 'Bağlı ✓' : 'Bağlanmadı' }}
+                </strong>
+              </div>
+            </div>
+
+            <button class="btn-primary full-width" (click)="activeTab.set('nfc-stands')">
+              🏷️ Masa Standlarını İndir / Yazdır
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: MENU & CATEGORY MANAGEMENT -->
+    <section class="tab-pane animate-fade-in" *ngIf="activeTab() === 'menu'">
+      <div class="action-top-bar">
+        <div class="category-filter-chips">
+          <button
+            class="filter-chip"
+            [class.active]="selectedCategoryForFilter() === 'all'"
+            (click)="selectedCategoryForFilter.set('all')"
+          >
+            Tüm Kategoriler
+          </button>
+          <button
+            *ngFor="let cat of categories()"
+            class="filter-chip"
+            [class.active]="selectedCategoryForFilter() === cat.id"
+            (click)="selectedCategoryForFilter.set(cat.id)"
+          >
+            {{ cat.icon || '🍽️' }} {{ cat.name }}
+          </button>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-secondary" (click)="openAddCategory()">
+            ➕ Yeni Kategori
+          </button>
+          <button class="btn-primary" (click)="openAddItem()">
+            ➕ Yeni Ürün Ekle
+          </button>
+        </div>
+      </div>
+
+      <!-- Categories & Items Table / Cards -->
+      <div class="menu-management-container">
+        <div
+          *ngFor="let cat of categories()"
+          class="category-admin-card glass-card"
+          [style.display]="selectedCategoryForFilter() === 'all' || selectedCategoryForFilter() === cat.id ? 'block' : 'none'"
+        >
+          <div class="cat-admin-header">
+            <div class="cat-header-left">
+              <span class="cat-emoji">{{ cat.icon || '🍽️' }}</span>
+              <div>
+                <h3 class="cat-admin-title">{{ cat.name }}</h3>
+                <p class="cat-admin-sub" *ngIf="cat.nameEn">{{ cat.nameEn }}</p>
+              </div>
+            </div>
+
+            <div class="cat-header-actions">
+              <button class="btn-icon" (click)="openAddItem(cat.id)" title="Bu kategoriye ürün ekle">
+                ➕ Ürün Ekle
+              </button>
+              <button class="btn-icon" (click)="openEditCategory(cat)" title="Kategoriyi Düzenle">
+                ✏️ Düzenle
+              </button>
+              <button class="btn-icon danger" (click)="deleteCategory(cat.id)" title="Kategoriyi Sil">
+                🗑️ Sil
+              </button>
+            </div>
+          </div>
+
+          <!-- Items in this category -->
+          <div class="category-items-list">
+            <div *ngFor="let item of cat.items" class="item-admin-row">
+              <div class="item-thumb-box" *ngIf="item.imageUrl">
+                <img [src]="item.imageUrl" alt="" class="item-thumb" />
+              </div>
+
+              <div class="item-main-info">
+                <div class="item-name-row">
+                  <h4 class="item-admin-name">{{ item.name }}</h4>
+                  <span class="badge badge-gold" *ngIf="item.isChefSpecial">Şefin Seçimi</span>
+                  <span class="badge badge-primary" *ngIf="item.isPopular">Popüler</span>
+                </div>
+                <p class="item-admin-desc">{{ item.description }}</p>
+                <div class="item-admin-meta">
+                  <span class="price-tag">{{ item.price }} {{ restaurant()?.currency || '₺' }}</span>
+                  <span *ngIf="item.calories" class="meta-tag">{{ item.calories }} kcal</span>
+                  <span *ngIf="item.dietaryTags" class="meta-tag">{{ item.dietaryTags }}</span>
+                </div>
+              </div>
+
+              <div class="item-row-actions">
+                <!-- Real-time Availability Toggle -->
+                <button
+                  class="availability-toggle-btn"
+                  [class.available]="item.isAvailable"
+                  [class.unavailable]="!item.isAvailable"
+                  (click)="toggleItemAvailability(item)"
+                  title="Stok Durumunu Değiştir"
+                >
+                  <span class="status-circle"></span>
+                  {{ item.isAvailable ? 'Satışta' : 'Tükendi' }}
+                </button>
+
+                <button class="btn-icon" (click)="openEditItem(item)" title="Düzenle">
+                  ✏️
+                </button>
+                <button class="btn-icon danger" (click)="deleteItem(item.id)" title="Sil">
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            <div class="empty-cat-items" *ngIf="!cat.items?.length">
+              <p>Bu kategoride henüz ürün bulunmuyor.</p>
+              <button class="btn-secondary btn-sm" (click)="openAddItem(cat.id)">
+                İlk Ürünü Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: VENUE, WI-FI & GOOGLE SETTINGS -->
+    <section class="tab-pane animate-fade-in" *ngIf="activeTab() === 'venue'">
+      <div class="settings-grid">
+        <!-- Left: Form inputs -->
+        <div class="settings-form-column">
+          <!-- 1. General & Branding -->
+          <div class="settings-card glass-card">
+            <h3 class="section-title">🏢 Mekan Bilgileri & Kurumsal Kimlik</h3>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label class="form-label">Mekan Adı</label>
+                <input type="text" [(ngModel)]="venueForm.name" class="form-input" />
+              </div>
+
+              <div class="form-group flex-1">
+                <label class="form-label">NFC Bağlantı Kısa Adı (Slug)</label>
+                <input type="text" [(ngModel)]="venueForm.slug" class="form-input" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Slogan / Açıklama</label>
+              <input type="text" [(ngModel)]="venueForm.tagline" class="form-input" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label class="form-label">Logo Görsel URL</label>
+                <input type="text" [(ngModel)]="venueForm.logoUrl" class="form-input" />
+              </div>
+
+              <div class="form-group flex-1">
+                <label class="form-label">Kapak Görsel URL</label>
+                <input type="text" [(ngModel)]="venueForm.coverUrl" class="form-input" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label class="form-label">Ana Renk (Primary Color)</label>
+                <div class="color-picker-row">
+                  <input type="color" [(ngModel)]="venueForm.primaryColor" class="color-picker" />
+                  <input type="text" [(ngModel)]="venueForm.primaryColor" class="form-input font-mono" />
+                </div>
+              </div>
+
+              <div class="form-group flex-1">
+                <label class="form-label">Vurgu Rengi (Accent Color)</label>
+                <div class="color-picker-row">
+                  <input type="color" [(ngModel)]="venueForm.accentColor" class="color-picker" />
+                  <input type="text" [(ngModel)]="venueForm.accentColor" class="form-input font-mono" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. WiFi Settings -->
+          <div class="settings-card glass-card">
+            <h3 class="section-title">📶 1-Tıkla Wi-Fi Bağlantı Ayarları</h3>
+            <p class="section-sub">
+              Müşteriler NFC etiketine dokunduğunda veya QR okuttuğunda otomatik bağlanacaktır.
+            </p>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label class="form-label">Wi-Fi Ağ Adı (SSID)</label>
+                <input type="text" [(ngModel)]="venueForm.wifiSsid" placeholder="Örn: Lucca_Guest_5G" class="form-input" />
+              </div>
+
+              <div class="form-group flex-1">
+                <label class="form-label">Wi-Fi Şifresi</label>
+                <input type="text" [(ngModel)]="venueForm.wifiPassword" placeholder="Örn: Misafir2026" class="form-input font-mono" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label class="form-label">Şifreleme Tipi</label>
+                <select [(ngModel)]="venueForm.wifiEncryption" class="form-select">
+                  <option value="WPA">WPA / WPA2 / WPA3 (Önerilen)</option>
+                  <option value="WEP">WEP</option>
+                  <option value="nopass">Şifresiz (Açık Ağ)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Google Reviews & Social -->
+          <div class="settings-card glass-card">
+            <h3 class="section-title">⭐ Google Yorumları & İletişim</h3>
+
+            <div class="form-group">
+              <label class="form-label">Google Yorum / Puanlama Linki</label>
+              <input type="text" [(ngModel)]="venueForm.googleReviewUrl" placeholder="https://g.page/r/..." class="form-input" />
+              <span class="input-hint">Google İşletme profilinizdeki 'Yorum isteyin' kısa bağlantısını buraya yapıştırın.</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label class="form-label">Instagram Kullanıcı Adı</label>
+                <input type="text" [(ngModel)]="venueForm.instagramHandle" placeholder="Örn: luccastyle" class="form-input" />
+              </div>
+
+              <div class="form-group flex-1">
+                <label class="form-label">WhatsApp Sipariş / Rezervasyon Hattı</label>
+                <input type="text" [(ngModel)]="venueForm.whatsappNumber" placeholder="905321234567" class="form-input" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label class="form-label">Adres</label>
+                <input type="text" [(ngModel)]="venueForm.address" class="form-input" />
+              </div>
+              <div class="form-group flex-1">
+                <label class="form-label">Telefon</label>
+                <input type="text" [(ngModel)]="venueForm.phone" class="form-input" />
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-primary save-btn" (click)="saveVenueSettings()">
+            💾 Değişiklikleri Kaydet
+          </button>
+        </div>
+
+        <!-- Right: Live QR Preview Column -->
+        <div class="settings-preview-column">
+          <!-- Live Wi-Fi QR Card -->
+          <div class="preview-box glass-card">
+            <h4 class="preview-title">📶 Otomatik Wi-Fi QR Kodu</h4>
+            <p class="preview-desc">Kamerayla okutulduğunda telefona "Wi-Fi Ağına Katıl" uyarısı verir.</p>
+
+            <div class="qr-display-center" *ngIf="wifiQr()?.qrDataUrl; else noWifiPreview">
+              <img [src]="wifiQr()?.qrDataUrl" alt="WiFi QR" class="preview-qr-img" />
+              <div class="qr-meta-box">
+                <span class="meta-line">Ağ: <strong>{{ venueForm.wifiSsid }}</strong></span>
+                <span class="meta-line">Şifre: <strong class="font-mono">{{ venueForm.wifiPassword }}</strong></span>
+              </div>
+            </div>
+
+            <ng-template #noWifiPreview>
+              <div class="empty-qr-box">
+                <p>Wi-Fi SSID ve şifre girildiğinde QR kod otomatik üretilir.</p>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Live Google QR Card -->
+          <div class="preview-box glass-card" *ngIf="googleQr()?.qrDataUrl">
+            <h4 class="preview-title">⭐ Google Yorum QR Kodu</h4>
+            <p class="preview-desc">Müşteriyi doğrudan 5 yıldız puanlama ekranına yönlendirir.</p>
+
+            <div class="qr-display-center">
+              <img [src]="googleQr()?.qrDataUrl" alt="Google QR" class="preview-qr-img" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: NFC DESK STANDS & PRINTABLE GENERATOR -->
+    <section class="tab-pane animate-fade-in" *ngIf="activeTab() === 'nfc-stands'">
+      <div class="stands-management-row no-print">
+        <div class="stand-control-card glass-card">
+          <h3 class="section-title">🏷️ Masa Standı ve Etiket Tasarımı</h3>
+          <p class="section-sub">
+            Masalarınıza koyabileceğiniz şık pleksi/ahşap stand tasarımlarını ve NFC yönlendirme kodlarını oluşturun.
+          </p>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label class="form-label">Masa Numarası</label>
+              <input
+                type="text"
+                [(ngModel)]="selectedTableNumber"
+                (ngModelChange)="onTableNumberChange()"
+                placeholder="Örn: Masa 1"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group flex-1">
+              <label class="form-label">Toplu Masa Sayısı</label>
+              <input
+                type="number"
+                [(ngModel)]="batchCount"
+                min="1"
+                max="50"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn-secondary" (click)="generateBatchStands()">
+              📦 Masa 1'den {{ batchCount() }}'e Kadar Toplu Üret
+            </button>
+            <button class="btn-primary" (click)="printStands()">
+              🖨️ Standları Yazdır / PDF İndir
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Single Stand Preview / Printable Layout -->
+      <div class="printable-stands-area" id="print-area">
+        <!-- Single Table Card -->
+        <div class="stand-card luxury-stand" *ngIf="batchStands().length === 0 && tableStandQr()">
+          <div class="stand-header">
+            <img [src]="restaurant()?.logoUrl" alt="Logo" class="stand-logo" />
+            <h2 class="stand-venue-name">{{ restaurant()?.name }}</h2>
+            <div class="stand-table-pill">{{ tableStandQr()?.tableNumber || 'Masa' }}</div>
+          </div>
+
+          <div class="stand-body">
+            <div class="stand-qr-box">
+              <img [src]="tableStandQr()?.qrDataUrl" alt="Table QR" class="stand-qr-img" />
+              <div class="nfc-chip-indicator">
+                <span class="nfc-icon">⚡</span>
+                <span class="nfc-label">NFC Etiketi Burada</span>
+              </div>
+            </div>
+
+            <div class="stand-instructions">
+              <h4 class="instruct-title">Telefonunuzu Yaklaştırın</h4>
+              <p class="instruct-sub">veya Kameranızla QR Kodu Okutun</p>
+              <div class="stand-features-pills">
+                <span>📱 Dijital Menü</span>
+                <span>📶 Hızlı Wi-Fi</span>
+                <span>🛎️ Garson Çağır</span>
+                <span>⭐ Puan Ver</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stand-footer">
+            <p class="stand-footer-text">Otomatik Menü & Servis Sistemi</p>
+          </div>
+        </div>
+
+        <!-- Batch Generated Table Cards -->
+        <div class="batch-stands-grid" *ngIf="batchStands().length > 0">
+          <div *ngFor="let stand of batchStands()" class="stand-card luxury-stand">
+            <div class="stand-header">
+              <img [src]="restaurant()?.logoUrl" alt="Logo" class="stand-logo" />
+              <h2 class="stand-venue-name">{{ restaurant()?.name }}</h2>
+              <div class="stand-table-pill">{{ stand.tableNumber }}</div>
+            </div>
+
+            <div class="stand-body">
+              <div class="stand-qr-box">
+                <img [src]="stand.qrDataUrl" alt="Table QR" class="stand-qr-img" />
+                <div class="nfc-chip-indicator">
+                  <span class="nfc-icon">⚡</span>
+                  <span class="nfc-label">NFC</span>
+                </div>
+              </div>
+
+              <div class="stand-instructions">
+                <h4 class="instruct-title">Telefonunuzu Yaklaştırın</h4>
+                <p class="instruct-sub">veya QR Kodu Okutun</p>
+              </div>
+            </div>
+
+            <div class="stand-footer">
+              <p class="stand-footer-text">Dijital Menü • Hızlı Wi-Fi • Servis</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: LIVE MOBILE PREVIEW -->
+    <section class="tab-pane animate-fade-in" *ngIf="activeTab() === 'preview'">
+      <div class="preview-simulator-container">
+        <div class="simulator-instructions">
+          <h3>📱 Canlı Müşteri Deneyimi Simülatörü</h3>
+          <p>
+            Müşterileriniz masadaki NFC etiketine telefonunu dokundurduğunda veya masanın QR kodunu okuttuğunda bu ekran ile karşılaşır.
+          </p>
+          <div class="simulator-tips">
+            <div class="tip-card">
+              <strong>📶 Wi-Fi:</strong> Müşteri Wi-Fi kartına tıklayıp şifreyi 1-tıkla kopyalayabilir veya QR ile bağlanabilir.
+            </div>
+            <div class="tip-card">
+              <strong>⭐ Google Yorum:</strong> Müşteri Google puanlama kartına tıkladığında işletme değerlendirme sayfasına yönlendirilir.
+            </div>
+            <div class="tip-card">
+              <strong>🛎️ Garson Çağır:</strong> Müşteri masaya servis veya hesap talep edebilir.
+            </div>
+          </div>
+        </div>
+
+        <div class="phone-mockup-frame">
+          <div class="phone-notch"></div>
+          <iframe
+            [src]="'/r/' + restaurant()?.slug | safeUrl"
+            class="phone-iframe"
+            title="Customer View Simulator"
+          ></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. Category Add/Edit Modal -->
+  <div class="modal-backdrop" *ngIf="showCategoryModal()" (click)="showCategoryModal.set(false)">
+    <div class="modal-card animate-fade-in" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ editingCategory() ? 'Kategoriyi Düzenle' : 'Yeni Kategori Ekle' }}</h3>
+        <button class="modal-close-btn" (click)="showCategoryModal.set(false)">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Kategori Adı (Türkçe)</label>
+          <input type="text" [(ngModel)]="categoryForm.name" placeholder="Örn: Başlangıçlar" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Kategori Adı (İngilizce)</label>
+          <input type="text" [(ngModel)]="categoryForm.nameEn" placeholder="Örn: Starters" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">İkon / Emoji</label>
+          <input type="text" [(ngModel)]="categoryForm.icon" placeholder="Örn: 🥗, 🍕, 🥩, 🍸" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Açıklama</label>
+          <input type="text" [(ngModel)]="categoryForm.description" placeholder="Örn: Paylaşımlık sıcak tabaklar" class="form-input" />
+        </div>
+
+        <button class="btn-primary full-width" (click)="saveCategory()">
+          {{ editingCategory() ? 'Güncelle' : 'Kategori Oluştur' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Item Add/Edit Modal -->
+  <div class="modal-backdrop" *ngIf="showItemModal()" (click)="showItemModal.set(false)">
+    <div class="modal-card item-edit-modal animate-fade-in" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ editingItem() ? 'Ürünü Düzenle' : 'Yeni Menü Ürünü Ekle' }}</h3>
+        <button class="modal-close-btn" (click)="showItemModal.set(false)">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label class="form-label">Ürün Adı (Türkçe)</label>
+            <input type="text" [(ngModel)]="itemForm.name" placeholder="Örn: Trüflü Burrata" class="form-input" />
+          </div>
+
+          <div class="form-group flex-1">
+            <label class="form-label">Fiyat ({{ restaurant()?.currency || '₺' }})</label>
+            <input type="number" [(ngModel)]="itemForm.price" placeholder="450" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label class="form-label">Ürün Adı (İngilizce)</label>
+            <input type="text" [(ngModel)]="itemForm.nameEn" placeholder="Truffle Burrata" class="form-input" />
+          </div>
+
+          <div class="form-group flex-1">
+            <label class="form-label">Kategori</label>
+            <select [(ngModel)]="itemForm.categoryId" class="form-select">
+              <option *ngFor="let cat of categories()" [value]="cat.id">
+                {{ cat.icon || '🍽️' }} {{ cat.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Görsel URL</label>
+          <input type="text" [(ngModel)]="itemForm.imageUrl" placeholder="https://images.unsplash.com/..." class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Açıklama / İçindekiler</label>
+          <textarea [(ngModel)]="itemForm.description" rows="2" class="form-textarea" placeholder="İçerik, pişirme usulü ve eşlikçiler..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label class="form-label">Diyet Etiketleri</label>
+            <input type="text" [(ngModel)]="itemForm.dietaryTags" placeholder="vejetaryen, glutensiz" class="form-input" />
+          </div>
+
+          <div class="form-group flex-1">
+            <label class="form-label">Alerjenler</label>
+            <input type="text" [(ngModel)]="itemForm.allergens" placeholder="süt, gluten, fıstık" class="form-input" />
+          </div>
+
+          <div class="form-group flex-1">
+            <label class="form-label">Kalori (kcal)</label>
+            <input type="number" [(ngModel)]="itemForm.calories" placeholder="420" class="form-input" />
+          </div>
+        </div>
+
+        <!-- Badges switches -->
+        <div class="checkbox-row">
+          <label class="custom-checkbox-label">
+            <input type="checkbox" [(ngModel)]="itemForm.isChefSpecial" />
+            <span>★ Şefin Seçimi</span>
+          </label>
+
+          <label class="custom-checkbox-label">
+            <input type="checkbox" [(ngModel)]="itemForm.isPopular" />
+            <span>🔥 Popüler</span>
+          </label>
+
+          <label class="custom-checkbox-label">
+            <input type="checkbox" [(ngModel)]="itemForm.isNew" />
+            <span>✨ Yeni</span>
+          </label>
+        </div>
+
+        <button class="btn-primary full-width" (click)="saveItem()">
+          {{ editingItem() ? 'Değişiklikleri Kaydet' : 'Ürünü Menüye Ekle' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

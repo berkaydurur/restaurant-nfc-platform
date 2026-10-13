@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+*/dist/
+.angular/
+
+# Environment & secrets
+.env
+*/.env
+*.local
+
+# Database
+*.db
+*.db-journal
+dev.db
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE & Editor
+.vscode/
+.idea/
+*.log

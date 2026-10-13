@@ -1,0 +1,127 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  passwordHash String
+  name         String
+  role         String      @default("RESTAURANT_OWNER") // "SUPER_ADMIN" | "RESTAURANT_OWNER"
+  restaurantId String?
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Restaurant {
+  id                String           @id @default(uuid())
+  slug              String           @unique // Used in NFC tap link: /r/slug
+  name              String
+  tagline           String?
+  description       String?
+  logoUrl           String?
+  coverUrl          String?
+  address           String?
+  phone             String?
+  email             String?
+  websiteUrl        String?
+  
+  // Theme & Branding
+  primaryColor      String           @default("#e11d48") // Rose/Red luxury tone
+  accentColor       String           @default("#f59e0b") // Amber
+  themeMode         String           @default("dark")    // "dark" | "light"
+  fontFamily        String           @default("Inter")
+
+  // NFC Quick Services: WiFi
+  wifiSsid          String?
+  wifiPassword      String?
+  wifiEncryption    String           @default("WPA") // WPA, WEP, nopass
+  wifiHidden        Boolean          @default(false)
+
+  // NFC Quick Services: Google & Reviews
+  googleReviewUrl   String?
+  googlePlaceId     String?
+  googleMapsUrl     String?
+
+  // Social & Communication
+  instagramHandle   String?
+  whatsappNumber    String?
+  tripadvisorUrl    String?
+
+  currency          String           @default("₺")
+  languageDefault   String           @default("tr")
+  isActive          Boolean          @default(true)
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  users             User[]
+  categories        MenuCategory[]
+  menuItems         MenuItem[]
+  analytics         AnalyticsEvent[]
+}
+
+model MenuCategory {
+  id           String      @id @default(uuid())
+  restaurantId String
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name         String
+  nameEn       String?
+  description  String?
+  icon         String?     // icon name or emoji: 🍕, 🍔, 🍸, ☕
+  sortOrder    Int         @default(0)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  items        MenuItem[]
+}
+
+model MenuItem {
+  id              String        @id @default(uuid())
+  restaurantId    String
+  restaurant      Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  categoryId      String
+  category        MenuCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  name            String
+  nameEn          String?
+  description     String?
+  descriptionEn   String?
+  price           Float
+  discountedPrice Float?
+  imageUrl        String?
+  
+  isAvailable     Boolean       @default(true)
+  isChefSpecial   Boolean       @default(false)
+  isPopular       Boolean       @default(false)
+  isNew           Boolean       @default(false)
+
+  // Dietary tags stored as comma-separated or JSON string ("vegan,gluten_free,halal")
+  dietaryTags     String?       // "vegan,vegetarian,gluten-free,halal,spicy"
+  allergens       String?       // "nuts,dairy,eggs,gluten,soy"
+  calories        Int?
+  preparationTime Int?          // minutes
+  sortOrder       Int           @default(0)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model AnalyticsEvent {
+  id           String      @id @default(uuid())
+  restaurantId String
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  
+  eventType    String      // "NFC_TAP" | "MENU_VIEW" | "WIFI_CONNECT" | "GOOGLE_REVIEW" | "WAITER_CALL"
+  tableNumber  String?     // e.g. "Table 12"
+  metadata     String?     // JSON string for additional context (browser, os, etc.)
+  
+  createdAt    DateTime    @default(now())
+}

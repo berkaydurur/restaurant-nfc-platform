@@ -1,0 +1,98 @@
+<div class="auth-page-container">
+  <div class="auth-card glass-card animate-fade-in">
+    <div class="auth-header">
+      <div class="auth-badge-icon">✨</div>
+      <h2 class="auth-title">Restoranınızı Kaydedin</h2>
+      <p class="auth-sub">Dakikalar içinde mekanınız için NFC menüsü ve Wi-Fi QR oluşturun</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="error-banner" *ngIf="errorMessage()">
+        {{ errorMessage() }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Mekan / Restoran Adı</label>
+        <input
+          type="text"
+          [ngModel]="restaurantName()"
+          (ngModelChange)="onRestaurantNameChange($event)"
+          name="restaurantName"
+          required
+          class="form-input"
+          placeholder="Örn: Bebek Kahvecisi"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">NFC Bağlantı Kısa Adı (Slug)</label>
+        <input
+          type="text"
+          [ngModel]="restaurantSlug()"
+          (ngModelChange)="restaurantSlug.set($event)"
+          name="restaurantSlug"
+          required
+          class="form-input font-mono"
+          placeholder="bebek-kahvecisi"
+        />
+        <span class="input-hint" *ngIf="restaurantSlug()">
+          Müşteri NFC adresi: <strong>/r/{{ restaurantSlug() }}</strong>
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Yetkili Adı Soyadı</label>
+        <input
+          type="text"
+          [ngModel]="userName()"
+          (ngModelChange)="userName.set($event)"
+          name="userName"
+          required
+          class="form-input"
+          placeholder="Ahmet Yılmaz"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">E-posta Adresi</label>
+        <input
+          type="email"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          name="email"
+          required
+          class="form-input"
+          placeholder="yonetici@mekan.com"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Şifre</label>
+        <input
+          type="password"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          name="password"
+          required
+          class="form-input font-mono"
+          placeholder="En az 6 karakter"
+        />
+      </div>
+
+      <button type="submit" class="btn-primary auth-submit-btn" [disabled]="isLoading()">
+        <span *ngIf="!isLoading()">Mekanımı Oluştur & Başla →</span>
+        <span *ngIf="isLoading()">Oluşturuluyor...</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p class="auth-switch-text">
+        Zaten hesabınız var mı?
+        <a routerLink="/login" class="auth-link">Giriş Yap</a>
+      </p>
+      <div class="back-home-link">
+        <a routerLink="/">← Ana Sayfaya Dön</a>
+      </div>
+    </div>
+  </div>
+</div>

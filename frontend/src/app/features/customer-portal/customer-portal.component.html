@@ -1,0 +1,463 @@
+<div class="customer-portal-container" *ngIf="restaurant(); else loadingOrError">
+  <!-- Top Ambient Banner & Venue Header -->
+  <header class="venue-header">
+    <div class="cover-image-container">
+      <img
+        [src]="restaurant()?.coverUrl || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&h=600&q=80'"
+        alt="Venue Cover"
+        class="cover-image"
+      />
+      <div class="cover-overlay"></div>
+    </div>
+
+    <!-- Floating Top Bar -->
+    <div class="top-bar">
+      <div class="table-badge" *ngIf="tableNumber()">
+        <span class="nfc-pulse"></span>
+        <span class="table-text">{{ tableNumber() }}</span>
+      </div>
+      <div class="table-badge" *ngIf="!tableNumber()">
+        <span class="nfc-pulse"></span>
+        <span class="table-text">NFC Bağlantısı Aktif</span>
+      </div>
+
+      <div class="header-actions">
+        <button class="lang-toggle-btn" (click)="toggleLanguage()">
+          {{ currentLang() === 'tr' ? 'EN' : 'TR' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Venue Identity Card -->
+    <div class="venue-identity">
+      <div class="logo-wrapper">
+        <img
+          [src]="restaurant()?.logoUrl || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=200&h=200&q=80'"
+          alt="Venue Logo"
+          class="venue-logo"
+        />
+      </div>
+      <div class="venue-titles">
+        <h1 class="venue-name">{{ restaurant()?.name }}</h1>
+        <p class="venue-tagline" *ngIf="restaurant()?.tagline">{{ restaurant()?.tagline }}</p>
+        <p class="venue-address" *ngIf="restaurant()?.address">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          {{ restaurant()?.address }}
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- QUICK NFC ACTIONS HUB -->
+  <section class="nfc-action-hub">
+    <div class="action-grid">
+      <!-- 1. WiFi Quick Connect Card -->
+      <button class="action-card wifi-card" (click)="openWifiModal()">
+        <div class="action-icon-box wifi-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+          </svg>
+        </div>
+        <div class="action-info">
+          <span class="action-title">{{ currentLang() === 'tr' ? 'Wi-Fi\'a Bağlan' : 'Connect Wi-Fi' }}</span>
+          <span class="action-sub">{{ restaurant()?.wifiSsid || 'Hızlı Misafir Ağı' }}</span>
+        </div>
+        <div class="action-arrow">→</div>
+      </button>
+
+      <!-- 2. Google Reviews Motivate Card -->
+      <button class="action-card review-card" (click)="openGoogleReview()">
+        <div class="action-icon-box review-icon-box">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+          </svg>
+        </div>
+        <div class="action-info">
+          <span class="action-title">{{ currentLang() === 'tr' ? 'Google\'da Puanla' : 'Rate on Google' }}</span>
+          <span class="action-sub">5 ★ {{ currentLang() === 'tr' ? 'Deneyiminizi paylaşın' : 'Leave a review' }}</span>
+        </div>
+        <div class="action-arrow">→</div>
+      </button>
+
+      <!-- 3. Waiter Call & Bill -->
+      <button class="action-card waiter-card" (click)="openWaiterModal()">
+        <div class="action-icon-box waiter-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </div>
+        <div class="action-info">
+          <span class="action-title">{{ currentLang() === 'tr' ? 'Garson / Hesap İste' : 'Call Waiter / Bill' }}</span>
+          <span class="action-sub">{{ currentLang() === 'tr' ? 'Masaya servis çağır' : 'Assistance to table' }}</span>
+        </div>
+        <div class="action-arrow">→</div>
+      </button>
+
+      <!-- 4. Quick Menu Jump Card -->
+      <button class="action-card menu-jump-card" (click)="scrollToMenu()">
+        <div class="action-icon-box menu-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path>
+            <path d="M7 2v20"></path>
+            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+          </svg>
+        </div>
+        <div class="action-info">
+          <span class="action-title">{{ currentLang() === 'tr' ? 'Dijital Menü' : 'Digital Menu' }}</span>
+          <span class="action-sub">{{ categories().length }} {{ currentLang() === 'tr' ? 'Kategori & Lezzet' : 'Categories' }}</span>
+        </div>
+        <div class="action-arrow">↓</div>
+      </button>
+    </div>
+
+    <!-- Social & Contact Quick Links -->
+    <div class="social-links-bar" *ngIf="restaurant()?.instagramHandle || restaurant()?.whatsappNumber || restaurant()?.phone">
+      <a *ngIf="restaurant()?.instagramHandle" [href]="'https://instagram.com/' + restaurant()?.instagramHandle" target="_blank" class="social-pill">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>
+        &#64;{{ restaurant()?.instagramHandle }}
+      </a>
+
+      <a *ngIf="restaurant()?.whatsappNumber" [href]="'https://wa.me/' + restaurant()?.whatsappNumber" target="_blank" class="social-pill whatsapp">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+          <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.144.39-.086s1.011.477 1.184.564.289.13.332.203c.043.072.043.419-.101.824z"/>
+        </svg>
+        WhatsApp
+      </a>
+
+      <a *ngIf="restaurant()?.phone" [href]="'tel:' + restaurant()?.phone" class="social-pill phone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        Ara
+      </a>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE DIGITAL MENU SECTION -->
+  <section id="menu-section" class="menu-section">
+    <div class="menu-header-bar">
+      <div class="menu-titles">
+        <h2 class="menu-main-title">{{ currentLang() === 'tr' ? 'Menü & Lezzetler' : 'Menu & Delights' }}</h2>
+        <span class="menu-badge">{{ currentLang() === 'tr' ? 'Güncel Fiyatlar' : 'Current Menu' }}</span>
+      </div>
+
+      <!-- Live Search Input -->
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          [placeholder]="currentLang() === 'tr' ? 'Yemek, içecek veya içerik ara...' : 'Search food, drinks...'"
+          class="search-input"
+        />
+        <button *ngIf="searchQuery()" (click)="searchQuery.set('')" class="clear-search-btn">✕</button>
+      </div>
+
+      <!-- Dietary Quick Filter Bar -->
+      <div class="dietary-filter-bar">
+        <button
+          class="filter-chip"
+          [class.active]="selectedDietary() === 'all'"
+          (click)="selectedDietary.set('all')"
+        >
+          {{ currentLang() === 'tr' ? 'Tümü' : 'All' }}
+        </button>
+        <button
+          class="filter-chip"
+          [class.active]="selectedDietary() === 'vejetaryen'"
+          (click)="selectedDietary.set('vejetaryen')"
+        >
+          🌱 Vejetaryen
+        </button>
+        <button
+          class="filter-chip"
+          [class.active]="selectedDietary() === 'glutensiz'"
+          (click)="selectedDietary.set('glutensiz')"
+        >
+          🌾 Glutensiz
+        </button>
+      </div>
+
+      <!-- Horizontal Category Pills -->
+      <div class="category-tabs-scroll">
+        <button
+          class="category-tab-pill"
+          [class.active]="selectedCategoryId() === 'all'"
+          (click)="selectedCategoryId.set('all')"
+        >
+          <span>✨</span>
+          <span>{{ currentLang() === 'tr' ? 'Tüm Kategoriler' : 'All Categories' }}</span>
+        </button>
+
+        <button
+          *ngFor="let cat of categories()"
+          class="category-tab-pill"
+          [class.active]="selectedCategoryId() === cat.id"
+          (click)="selectedCategoryId.set(cat.id)"
+        >
+          <span>{{ cat.icon || '🍽️' }}</span>
+          <span>{{ currentLang() === 'tr' ? cat.name : (cat.nameEn || cat.name) }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Categorized Food List -->
+    <div class="categories-list">
+      <div *ngFor="let cat of filteredCategories()" class="category-block animate-fade-in">
+        <div class="category-block-header">
+          <div class="cat-title-wrap">
+            <span class="cat-icon">{{ cat.icon || '🍽️' }}</span>
+            <h3 class="cat-title">{{ currentLang() === 'tr' ? cat.name : (cat.nameEn || cat.name) }}</h3>
+          </div>
+          <p class="cat-desc" *ngIf="cat.description">{{ cat.description }}</p>
+        </div>
+
+        <div class="items-grid">
+          <div
+            *ngFor="let item of cat.filteredItems"
+            class="food-card"
+            (click)="viewItem(item)"
+          >
+            <!-- Image Area -->
+            <div class="food-img-wrap" *ngIf="item.imageUrl">
+              <img [src]="item.imageUrl" [alt]="item.name" class="food-img" loading="lazy" />
+              <!-- Badges -->
+              <div class="food-badges">
+                <span class="badge badge-gold" *ngIf="item.isChefSpecial">★ Şefin Seçimi</span>
+                <span class="badge badge-primary" *ngIf="item.isPopular">Popüler</span>
+                <span class="badge badge-success" *ngIf="item.isNew">Yeni</span>
+              </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="food-details">
+              <div class="food-title-row">
+                <h4 class="food-name">{{ currentLang() === 'tr' ? item.name : (item.nameEn || item.name) }}</h4>
+                <div class="food-price-wrap">
+                  <span class="food-price">{{ item.price }} {{ restaurant()?.currency || '₺' }}</span>
+                </div>
+              </div>
+
+              <p class="food-desc" *ngIf="item.description">
+                {{ currentLang() === 'tr' ? item.description : (item.descriptionEn || item.description) }}
+              </p>
+
+              <div class="food-meta-row">
+                <div class="dietary-tags" *ngIf="item.dietaryTags">
+                  <span class="tag-label" *ngFor="let tag of item.dietaryTags.split(',')">
+                    {{ tag.trim() }}
+                  </span>
+                </div>
+                <div class="calories-info" *ngIf="item.calories">
+                  {{ item.calories }} kcal
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No items empty state -->
+      <div class="no-items-state" *ngIf="filteredCategories().length === 0">
+        <p class="empty-emoji">🔍</p>
+        <p class="empty-title">{{ currentLang() === 'tr' ? 'Sonuç Bulunamadı' : 'No items found' }}</p>
+        <p class="empty-sub">{{ currentLang() === 'tr' ? 'Arama kriterlerinizi değiştirerek tekrar deneyebilirsiniz.' : 'Try adjusting your search criteria.' }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="customer-footer">
+    <div class="footer-brand">
+      <p class="venue-footer-name">{{ restaurant()?.name }}</p>
+      <p class="powered-by">⚡ Akıllı NFC Masası ile Bağlandı</p>
+    </div>
+    <div class="footer-links">
+      <a routerLink="/" class="platform-link">Antigravity Restaurant NFC Sistemi</a>
+      <a routerLink="/login" class="admin-link">Mekan Girişi</a>
+    </div>
+  </footer>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. WIFI MODAL -->
+  <div class="modal-backdrop" *ngIf="showWifiModal()" (click)="closeWifiModal()">
+    <div class="modal-card animate-fade-in" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon-badge wifi-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22">
+            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+            <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+            <line x1="12" y1="20" x2="12.01" y2="20"></line>
+          </svg>
+        </div>
+        <div>
+          <h3 class="modal-title">{{ currentLang() === 'tr' ? 'Wi-Fi Bağlantısı' : 'Wi-Fi Connection' }}</h3>
+          <p class="modal-sub">{{ currentLang() === 'tr' ? '1-Tıkla şifreyi kopyala veya QR okut' : 'Copy password or scan QR' }}</p>
+        </div>
+        <button class="modal-close-btn" (click)="closeWifiModal()">✕</button>
+      </div>
+
+      <div class="modal-body" *ngIf="restaurant()?.wifiSsid; else noWifiConfig">
+        <!-- QR Display -->
+        <div class="qr-container" *ngIf="wifiData()?.qrDataUrl">
+          <img [src]="wifiData()?.qrDataUrl" alt="WiFi QR Code" class="wifi-qr-img" />
+          <p class="qr-hint">📷 {{ currentLang() === 'tr' ? 'Kameranızı QR koda tutarak otomatik bağlanın' : 'Scan with camera to connect automatically' }}</p>
+        </div>
+
+        <!-- Credentials copy box -->
+        <div class="wifi-info-card">
+          <div class="wifi-info-row">
+            <span class="info-label">Ağ Adı (SSID):</span>
+            <span class="info-value">{{ restaurant()?.wifiSsid }}</span>
+          </div>
+          <div class="wifi-info-row" *ngIf="restaurant()?.wifiPassword">
+            <span class="info-label">Şifre:</span>
+            <span class="info-value font-mono">{{ restaurant()?.wifiPassword }}</span>
+          </div>
+        </div>
+
+        <button class="btn-primary copy-btn" (click)="copyWifiPassword()">
+          <span *ngIf="!wifiCopied()">📋 {{ currentLang() === 'tr' ? 'Şifreyi Kopyala' : 'Copy Password' }}</span>
+          <span *ngIf="wifiCopied()">✓ {{ currentLang() === 'tr' ? 'Kopyalandı!' : 'Copied!' }}</span>
+        </button>
+      </div>
+
+      <ng-template #noWifiConfig>
+        <div class="empty-modal-state">
+          <p>Mekan için henüz Wi-Fi bilgisi tanımlanmamış.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- 2. WAITER & BILL REQUEST MODAL -->
+  <div class="modal-backdrop" *ngIf="showWaiterModal()" (click)="showWaiterModal.set(false)">
+    <div class="modal-card animate-fade-in" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon-badge waiter-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="modal-title">{{ currentLang() === 'tr' ? 'Masaya Servis Çağır' : 'Table Assistance' }}</h3>
+          <p class="modal-sub">{{ tableNumber() || 'Masa Seçildi' }}</p>
+        </div>
+        <button class="modal-close-btn" (click)="showWaiterModal.set(false)">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="success-banner" *ngIf="waiterCallSuccess()">
+          🎉 {{ waiterCallSuccess() }}
+        </div>
+
+        <div class="waiter-options" *ngIf="!waiterCallSuccess()">
+          <button class="waiter-option-btn primary-option" (click)="sendWaiterRequest('WAITER')">
+            <span class="option-icon">🛎️</span>
+            <div class="option-texts">
+              <span class="option-title">Garson Çağır</span>
+              <span class="option-sub">Masanıza servis görevlisi gelsin</span>
+            </div>
+          </button>
+
+          <button class="waiter-option-btn" (click)="sendWaiterRequest('BILL_CARD')">
+            <span class="option-icon">💳</span>
+            <div class="option-texts">
+              <span class="option-title">Kredi Kartı ile Hesap İste</span>
+              <span class="option-sub">POS cihazı ile hesap masanıza gelsin</span>
+            </div>
+          </button>
+
+          <button class="waiter-option-btn" (click)="sendWaiterRequest('BILL_CASH')">
+            <span class="option-icon">💵</span>
+            <div class="option-texts">
+              <span class="option-title">Nakit Hesap İste</span>
+              <span class="option-sub">Nakit ödeme için hesap fişi gelsin</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ITEM DETAIL MODAL -->
+  <div class="modal-backdrop" *ngIf="showItemDetailModal() && selectedItem()" (click)="showItemDetailModal.set(false)">
+    <div class="modal-card item-modal-card animate-fade-in" (click)="$event.stopPropagation()">
+      <div class="item-modal-cover" *ngIf="selectedItem()?.imageUrl">
+        <img [src]="selectedItem()?.imageUrl" [alt]="selectedItem()?.name" class="modal-cover-img" />
+        <button class="modal-close-round" (click)="showItemDetailModal.set(false)">✕</button>
+      </div>
+
+      <div class="item-modal-content">
+        <div class="modal-title-row">
+          <div>
+            <h3 class="item-modal-title">{{ currentLang() === 'tr' ? selectedItem()?.name : (selectedItem()?.nameEn || selectedItem()?.name) }}</h3>
+            <p class="item-modal-sub" *ngIf="currentLang() === 'tr' && selectedItem()?.nameEn">{{ selectedItem()?.nameEn }}</p>
+          </div>
+          <span class="item-modal-price">{{ selectedItem()?.price }} {{ restaurant()?.currency || '₺' }}</span>
+        </div>
+
+        <p class="item-modal-description">
+          {{ currentLang() === 'tr' ? selectedItem()?.description : (selectedItem()?.descriptionEn || selectedItem()?.description) }}
+        </p>
+
+        <!-- Nutrition & Details Grid -->
+        <div class="item-specs-grid">
+          <div class="spec-tile" *ngIf="selectedItem()?.calories">
+            <span class="spec-label">Kalori</span>
+            <span class="spec-val">{{ selectedItem()?.calories }} kcal</span>
+          </div>
+          <div class="spec-tile" *ngIf="selectedItem()?.preparationTime">
+            <span class="spec-label">Hazırlanış</span>
+            <span class="spec-val">{{ selectedItem()?.preparationTime }} dk</span>
+          </div>
+          <div class="spec-tile" *ngIf="selectedItem()?.dietaryTags">
+            <span class="spec-label">Diyet / Tercih</span>
+            <span class="spec-val">{{ selectedItem()?.dietaryTags }}</span>
+          </div>
+        </div>
+
+        <div class="allergens-box" *ngIf="selectedItem()?.allergens">
+          <span class="allergens-title">⚠️ Alerjen Uyarısı:</span>
+          <span class="allergens-text">{{ selectedItem()?.allergens }}</span>
+        </div>
+
+        <button class="btn-primary full-width-btn" (click)="showItemDetailModal.set(false)">
+          Kapat
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading & Error states -->
+<ng-template #loadingOrError>
+  <div class="loader-container" *ngIf="isLoading()">
+    <div class="spinner"></div>
+    <p class="loader-text">NFC Menüsü Yükleniyor...</p>
+  </div>
+
+  <div class="error-container" *ngIf="!isLoading() && errorMessage()">
+    <div class="error-card glass-card">
+      <span class="error-emoji">⚠️</span>
+      <h2 class="error-title">Mekan Bulunamadı</h2>
+      <p class="error-desc">{{ errorMessage() }}</p>
+      <a routerLink="/" class="btn-primary">Platform Ana Sayfasına Dön</a>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,140 @@
+<div class="landing-page-wrap">
+  <!-- Navbar -->
+  <header class="landing-navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <span class="brand-spark">⚡</span>
+        <span class="brand-name">Antigravity <strong>NFC Menü</strong></span>
+      </div>
+
+      <div class="nav-actions">
+        <a routerLink="/login" class="btn-secondary nav-btn">Mekan Girişi</a>
+        <a routerLink="/register" class="btn-primary nav-btn">Restoranını Kaydet</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="landing-hero">
+    <div class="hero-badge animate-fade-in">
+      <span>✨ Yeni Nesil Masadan Temassız Servis Platformu</span>
+    </div>
+
+    <h1 class="hero-title animate-fade-in">
+      Masada Tek Bir <span class="gradient-text">NFC Dokunuşuyla</span><br />
+      Menü, Wi-Fi ve Google Yorumları
+    </h1>
+
+    <p class="hero-subtitle animate-fade-in">
+      Müşterileriniz masadaki NFC etiketine telefonunu yaklaştırsın ya da QR okutsun.
+      Uygulama indirmeden anında menüye ulaşsın, şifre sormadan Wi-Fi'a bağlansın,
+      Google'da işletmenizi puanlasın ve garson çağırsın.
+    </p>
+
+    <div class="hero-cta-group animate-fade-in">
+      <a routerLink="/r/lucca-bistro" [queryParams]="{ table: 'Masa 4' }" class="btn-primary hero-btn">
+        <span>📱 Lucca Bistro Müşteri Ekranını Dene</span>
+      </a>
+      <a routerLink="/login" class="btn-secondary hero-btn">
+        <span>📊 Yönetici Dashboard'ını Aç</span>
+      </a>
+    </div>
+
+    <!-- Live Preview Feature Teaser -->
+    <div class="hero-highlights-grid animate-fade-in">
+      <div class="highlight-tile glass-card">
+        <span class="h-icon">📱</span>
+        <h4 class="h-title">1-Dokunuşta NFC Menü</h4>
+        <p class="h-desc">Uygulama yok, indirme yok. Tarayıcıda anında açılan görsel ve zengin menü.</p>
+      </div>
+
+      <div class="highlight-tile glass-card">
+        <span class="h-icon">📶</span>
+        <h4 class="h-title">Otomatik Wi-Fi Bağlantısı</h4>
+        <p class="h-desc">Garsona Wi-Fi şifresi sormaya son. 1-tıkla kopyalama ve Wi-Fi QR ile anında bağlanma.</p>
+      </div>
+
+      <div class="highlight-tile glass-card">
+        <span class="h-icon">⭐</span>
+        <h4 class="h-title">Google 5★ Yorum Motoru</h4>
+        <p class="h-desc">Masadaki müşterileri anında Google Haritalar profilinize yönlendirip yorumları katlayın.</p>
+      </div>
+
+      <div class="highlight-tile glass-card">
+        <span class="h-icon">🛎️</span>
+        <h4 class="h-title">Garson & Hesap Çağrısı</h4>
+        <p class="h-desc">Masa numarası otomatik iletilir, garson ve hesap talepleri anında sisteme düşer.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Demo Venues Section -->
+  <section class="venues-section">
+    <div class="section-heading-center">
+      <span class="badge badge-gold">Canlı Demolar</span>
+      <h2 class="section-title">Sistemi Kullanan Örnek Restoranlar</h2>
+      <p class="section-subtitle">Tıklayarak doğrudan müşterinin masada gördüğü NFC ekranını test edin:</p>
+    </div>
+
+    <div class="venues-grid">
+      <div *ngFor="let rest of restaurants()" class="venue-showcase-card glass-card">
+        <div class="venue-card-cover">
+          <img [src]="rest.coverUrl" alt="Cover" class="v-card-img" />
+          <div class="venue-card-badge">NFC Aktif</div>
+        </div>
+
+        <div class="venue-card-content">
+          <div class="v-logo-title-row">
+            <img [src]="rest.logoUrl" alt="Logo" class="v-mini-logo" />
+            <div>
+              <h3 class="v-title">{{ rest.name }}</h3>
+              <p class="v-sub">{{ rest.tagline }}</p>
+            </div>
+          </div>
+
+          <div class="v-features-tags">
+            <span class="v-tag">📶 {{ rest.wifiSsid || 'Guest Wi-Fi' }}</span>
+            <span class="v-tag">⭐ Google Yorum</span>
+            <span class="v-tag">🏷️ Masa Standları</span>
+          </div>
+
+          <div class="v-card-actions">
+            <a [routerLink]="['/r', rest.slug]" [queryParams]="{ table: 'Masa 1' }" class="btn-primary v-btn">
+              Müşteri Ekranı (NFC Masa 1) →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Clean Architecture Architecture Breakdown Section -->
+  <section class="architecture-section">
+    <div class="arch-box glass-card">
+      <h3 class="arch-title">🏗️ Modern Clean Architecture & Altyapı</h3>
+      <div class="arch-grid">
+        <div class="arch-item">
+          <h4>🎯 Domain Layer</h4>
+          <p>Restoran, Menü Kategorileri, Yemek Öğeleri, Wi-Fi Yapılandırması ve Analitik varlıkları.</p>
+        </div>
+        <div class="arch-item">
+          <h4>⚡ Application Layer</h4>
+          <p>NFC yönlendirme use-case'leri, menü yönetimi, QR üretici servisleri ve kimlik doğrulama.</p>
+        </div>
+        <div class="arch-item">
+          <h4>🗄️ Infrastructure Layer</h4>
+          <p>Prisma ORM, SQLite/PostgreSQL hazır veritabanı, bcrypt şifreleme ve SVG/PNG QR motoru.</p>
+        </div>
+        <div class="arch-item">
+          <h4>🅰️ Angular Modern UI</h4>
+          <p>Angular Signals, Standalone Components, Glassmorphism teması ve yazdırılabilir masa standları.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <p>© 2026 Antigravity Restaurant NFC & Menü Platformu. Clean Architecture & Angular ile geliştirildi.</p>
+  </footer>
+</div>

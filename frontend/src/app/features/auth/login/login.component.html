@@ -1,0 +1,79 @@
+<div class="auth-page-container">
+  <div class="auth-card glass-card animate-fade-in">
+    <div class="auth-header">
+      <div class="auth-badge-icon">⚡</div>
+      <h2 class="auth-title">Restoran Paneli Girişi</h2>
+      <p class="auth-sub">Mekanınızın NFC etiketlerini, Wi-Fi ve menüsünü yönetin</p>
+    </div>
+
+    <!-- Quick Demo Accounts -->
+    <div class="demo-accounts-box">
+      <span class="demo-label">Hızlı Demo Giriş Hesapları:</span>
+      <div class="demo-btns">
+        <button
+          type="button"
+          class="demo-chip"
+          [class.active]="email() === 'admin@lucca.com'"
+          (click)="fillDemo('admin@lucca.com')"
+        >
+          🍸 Lucca Bistro & Lounge
+        </button>
+        <button
+          type="button"
+          class="demo-chip"
+          [class.active]="email() === 'admin@gusto.com'"
+          (click)="fillDemo('admin@gusto.com')"
+        >
+          🍕 Gusto Trattoria
+        </button>
+      </div>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="error-banner" *ngIf="errorMessage()">
+        {{ errorMessage() }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">E-posta Adresi</label>
+        <input
+          type="email"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          name="email"
+          required
+          class="form-input"
+          placeholder="admin@restoran.com"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Şifre</label>
+        <input
+          type="password"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          name="password"
+          required
+          class="form-input font-mono"
+          placeholder="••••••••"
+        />
+      </div>
+
+      <button type="submit" class="btn-primary auth-submit-btn" [disabled]="isLoading()">
+        <span *ngIf="!isLoading()">Yönetim Paneline Giriş Yap →</span>
+        <span *ngIf="isLoading()">Giriş Yapılıyor...</span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p class="auth-switch-text">
+        Yeni bir mekan kaydetmek mi istiyorsunuz?
+        <a routerLink="/register" class="auth-link">Restoran Hesabı Aç</a>
+      </p>
+      <div class="back-home-link">
+        <a routerLink="/">← Ana Sayfaya Dön</a>
+      </div>
+    </div>
+  </div>
+</div>
